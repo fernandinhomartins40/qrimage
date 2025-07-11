@@ -1,0 +1,265 @@
+import { useState } from 'react';
+import QRCode from 'qrcode';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { ImageUpload } from './ImageUpload';
+import { Textarea } from '@/components/ui/textarea';
+import { Download, QrCode, Loader2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+
+interface ImageData {
+  file: File;
+  preview: string;
+  description: string;
+  qrCodeUrl?: string;
+  qrCodeDataUrl?: string;
+}
+
+export function QRCodeGenerator() {
+  const [imageData, setImageData] = useState<ImageData | null>(null);
+  const [description, setDescription] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const { toast } = useToast();
+
+  const handleImageSelect = (file: File, preview: string) => {
+    setImageData({
+      file,
+      preview,
+      description: description,
+    });
+  };
+
+  const handleRemoveImage = () => {
+    setImageData(null);
+    setDescription('');
+  };
+
+  const handleDescriptionChange = (value: string) => {
+    setDescription(value);
+    if (imageData) {
+      setImageData({
+        ...imageData,
+        description: value,
+      });
+    }
+  };
+
+  const generateQRCode = async () => {
+    if (!imageData) {
+      toast({
+        title: "Erro",
+        description: "Por favor, selecione uma imagem primeiro.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsGenerating(true);
+
+    try {
+      // Simular a criação de uma URL para a página de visualização
+      // Em uma implementação real, você enviaria a imagem para um servidor
+      const timestamp = Date.now();
+      const pageUrl = `${window.location.origin}/view/${timestamp}`;
+      
+      // Armazenar os dados no localStorage para simular persistência
+      localStorage.setItem(`image_${timestamp}`, JSON.stringify({
+        name: imageData.file.name,
+        type: imageData.file.type,
+        preview: imageData.preview,
+        description: description,
+      }));
+
+      // Gerar o QR code
+      const qrCodeDataUrl = await QRCode.toDataURL(pageUrl, {
+        width: 300,
+        margin: 2,
+        color: {
+          dark: '#8B5CF6',
+          light: '#FFFFFF'
+        }
+      });
+
+      setImageData({
+        ...imageData,
+        description: description,
+        qrCodeUrl: pageUrl,
+        qrCodeDataUrl: qrCodeDataUrl,
+      });
+
+      toast({
+        title: "QR Code gerado com sucesso!",
+        description: "Seu QR code está pronto para download.",
+        variant: "default",
+      });
+
+    } catch (error) {
+      console.error('Erro ao gerar QR code:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao gerar QR code. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const downloadQRCode = () => {
+    if (!imageData?.qrCodeDataUrl) return;
+
+    const link = document.createElement('a');
+    link.download = `qrcode-${imageData.file.name.split('.')[0]}.png`;
+    link.href = imageData.qrCodeDataUrl;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast({
+      title: "Download iniciado",
+      description: "O QR code foi baixado com sucesso.",
+      variant: "default",
+    });
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-subtle p-4">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
+            Gerador de QR Code
+            <span className="block text-2xl md:text-3xl text-primary font-normal mt-2">
+              para Imagens
+            </span>
+          </h1>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Crie QR codes únicos para suas imagens e compartilhe facilmente
+          </p>
+        </div>
+
+        {/* Main Content */}
+        <div className="grid lg:grid-cols-2 gap-8">
+          {/* Creation Section */}
+          <Card className="bg-gradient-card backdrop-blur-sm border-border/50 shadow-soft">
+            <CardContent className="p-6 space-y-6">
+              <div className="flex items-center space-x-2 mb-4">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <QrCode className="h-5 w-5 text-primary" />
+                </div>
+                <h2 className="text-2xl font-semibold text-foreground">Criação</h2>
+              </div>
+
+              {/* Image Upload */}
+              <ImageUpload
+                onImageSelect={handleImageSelect}
+                selectedImage={imageData}
+                onRemoveImage={handleRemoveImage}
+              />
+
+              {/* Description */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">
+                  Descrição da Imagem
+                </label>
+                <Textarea
+                  placeholder="Descreva sua imagem em até 300 caracteres..."
+                  value={description}
+                  onChange={(e) => handleDescriptionChange(e.target.value)}
+                  maxLength={300}
+                  className="min-h-[100px] resize-none bg-background/50 border-border/50 focus:border-primary/50"
+                />
+                <p className="text-xs text-muted-foreground text-right">
+                  {description.length}/300 caracteres
+                </p>
+              </div>
+
+              {/* Generate Button */}
+              <Button
+                variant="hero"
+                size="xl"
+                onClick={generateQRCode}
+                disabled={!imageData || isGenerating}
+                className="w-full"
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Gerando QR Code...
+                  </>
+                ) : (
+                  <>
+                    <QrCode className="mr-2 h-5 w-5" />
+                    Gerar QR Code
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* QR Code Visualization Section */}
+          <Card className="bg-gradient-card backdrop-blur-sm border-border/50 shadow-soft">
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-2 mb-6">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <Download className="h-5 w-5 text-primary" />
+                </div>
+                <h2 className="text-2xl font-semibold text-foreground">Visualização do QR Code</h2>
+              </div>
+
+              {imageData?.qrCodeDataUrl ? (
+                <div className="space-y-6">
+                  {/* QR Code Display */}
+                  <div className="flex justify-center">
+                    <div className="p-6 bg-background rounded-xl shadow-soft border border-border/50">
+                      <img 
+                        src={imageData.qrCodeDataUrl} 
+                        alt="QR Code gerado" 
+                        className="w-64 h-64 mx-auto"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Download Button */}
+                  <Button
+                    variant="success"
+                    size="lg"
+                    onClick={downloadQRCode}
+                    className="w-full"
+                  >
+                    <Download className="mr-2 h-5 w-5" />
+                    Baixar QR Code (PNG)
+                  </Button>
+
+                  {/* Info */}
+                  <div className="p-4 bg-muted/30 rounded-lg border border-border/30">
+                    <p className="text-sm text-muted-foreground text-center">
+                      <strong>URL gerada:</strong><br />
+                      <span className="font-mono text-xs break-all">{imageData.qrCodeUrl}</span>
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="h-96 flex items-center justify-center">
+                  <div className="text-center space-y-4">
+                    <div className="p-8 rounded-full bg-muted/20 mx-auto w-fit">
+                      <QrCode className="h-16 w-16 text-muted-foreground" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-medium text-foreground mb-2">
+                        Seu QR code aparecerá aqui
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        Envie uma imagem e clique em "Gerar QR Code"
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,148 @@
+import { useEffect, useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft, Image as ImageIcon, FileText } from 'lucide-react';
+
+interface StoredImageData {
+  name: string;
+  type: string;
+  preview: string;
+  description: string;
+}
+
+export default function ImageView() {
+  const { id } = useParams<{ id: string }>();
+  const [imageData, setImageData] = useState<StoredImageData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (id) {
+      const stored = localStorage.getItem(`image_${id}`);
+      if (stored) {
+        try {
+          const data = JSON.parse(stored);
+          setImageData(data);
+        } catch (error) {
+          console.error('Erro ao carregar dados da imagem:', error);
+        }
+      }
+      setLoading(false);
+    }
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
+        <div className="animate-pulse text-center">
+          <div className="h-16 w-16 bg-primary/20 rounded-full mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!imageData) {
+    return (
+      <div className="min-h-screen bg-gradient-subtle flex items-center justify-center p-4">
+        <Card className="max-w-md w-full bg-gradient-card backdrop-blur-sm border-border/50 shadow-soft">
+          <CardContent className="p-8 text-center">
+            <div className="p-4 rounded-full bg-destructive/10 w-fit mx-auto mb-4">
+              <ImageIcon className="h-8 w-8 text-destructive" />
+            </div>
+            <h1 className="text-2xl font-bold text-foreground mb-2">
+              Imagem não encontrada
+            </h1>
+            <p className="text-muted-foreground mb-6">
+              A imagem que você está procurando não foi encontrada ou pode ter expirado.
+            </p>
+            <Button asChild variant="outline">
+              <Link to="/">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Voltar ao início
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-subtle p-4">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="mb-6">
+          <Button asChild variant="outline" className="mb-4">
+            <Link to="/">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Voltar ao gerador
+            </Link>
+          </Button>
+        </div>
+
+        {/* Main Content */}
+        <Card className="bg-gradient-card backdrop-blur-sm border-border/50 shadow-elegant">
+          <CardContent className="p-8">
+            {/* Title */}
+            <div className="text-center mb-8">
+              <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
+                Visualização da Imagem
+              </h1>
+              <p className="text-muted-foreground">
+                Compartilhada via QR Code
+              </p>
+            </div>
+
+            {/* Image Display */}
+            <div className="mb-8">
+              <div className="relative overflow-hidden rounded-xl border-2 border-border bg-background shadow-soft">
+                <img 
+                  src={imageData.preview} 
+                  alt={imageData.name}
+                  className="w-full max-h-96 object-contain mx-auto"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
+              </div>
+              
+              {/* Image Info */}
+              <div className="mt-4 text-center">
+                <p className="text-sm text-muted-foreground">
+                  {imageData.name}
+                </p>
+              </div>
+            </div>
+
+            {/* Description */}
+            {imageData.description && (
+              <Card className="bg-muted/30 border-border/30">
+                <CardContent className="p-6">
+                  <div className="flex items-start space-x-3">
+                    <div className="p-2 rounded-lg bg-primary/10 flex-shrink-0">
+                      <FileText className="h-5 w-5 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-foreground mb-2">
+                        Descrição da Imagem
+                      </h3>
+                      <p className="text-foreground/80 leading-relaxed whitespace-pre-wrap">
+                        {imageData.description}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Footer */}
+            <div className="mt-8 pt-6 border-t border-border/30 text-center">
+              <p className="text-sm text-muted-foreground">
+                Gerado pelo <strong>Gerador de QR Code para Imagens</strong>
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
