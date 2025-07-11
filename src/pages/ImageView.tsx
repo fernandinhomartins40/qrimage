@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, Image as ImageIcon, FileText } from 'lucide-react';
+import { Image as ImageIcon, FileText } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface ImageQRCodeData {
@@ -74,15 +73,9 @@ export default function ImageView() {
             <h1 className="text-2xl font-bold text-foreground mb-2">
               Imagem não encontrada
             </h1>
-            <p className="text-muted-foreground mb-6">
+            <p className="text-muted-foreground">
               A imagem que você está procurando não foi encontrada ou pode ter expirado.
             </p>
-            <Button asChild variant="outline">
-              <Link to="/">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Voltar ao início
-              </Link>
-            </Button>
           </CardContent>
         </Card>
       </div>
@@ -92,15 +85,6 @@ export default function ImageView() {
   return (
     <div className="min-h-screen bg-gradient-subtle p-4">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="mb-6">
-          <Button asChild variant="outline" className="mb-4">
-            <Link to="/">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Voltar ao gerador
-            </Link>
-          </Button>
-        </div>
 
         {/* Main Content */}
         <Card className="bg-gradient-card backdrop-blur-sm border-border/50 shadow-elegant">
