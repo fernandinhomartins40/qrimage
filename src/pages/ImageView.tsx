@@ -3,32 +3,53 @@ import { useParams, Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Image as ImageIcon, FileText } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
-interface StoredImageData {
-  name: string;
-  type: string;
-  preview: string;
+interface ImageQRCodeData {
+  id: string;
+  image_name: string;
+  image_type: string;
+  image_path: string;
   description: string;
+  qr_code_url: string;
+  qr_code_data_url: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export default function ImageView() {
   const { id } = useParams<{ id: string }>();
-  const [imageData, setImageData] = useState<StoredImageData | null>(null);
+  const [imageData, setImageData] = useState<ImageQRCodeData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (id) {
-      const stored = localStorage.getItem(`image_${id}`);
-      if (stored) {
-        try {
-          const data = JSON.parse(stored);
-          setImageData(data);
-        } catch (error) {
-          console.error('Erro ao carregar dados da imagem:', error);
-        }
+    const loadImageData = async () => {
+      if (!id) {
+        setLoading(false);
+        return;
       }
+
+      try {
+        // Buscar os dados no Supabase usando o timestamp do ID
+        const { data, error } = await supabase
+          .from('image_qrcodes')
+          .select('*')
+          .eq('qr_code_url', `${window.location.origin}/view/${id}`)
+          .single();
+
+        if (error) {
+          console.error('Erro ao carregar dados da imagem:', error);
+        } else {
+          setImageData(data);
+        }
+      } catch (error) {
+        console.error('Erro ao carregar dados da imagem:', error);
+      }
+
       setLoading(false);
-    }
+    };
+
+    loadImageData();
   }, [id]);
 
   if (loading) {
@@ -98,8 +119,8 @@ export default function ImageView() {
             <div className="mb-8">
               <div className="relative overflow-hidden rounded-xl border-2 border-border bg-background shadow-soft">
                 <img 
-                  src={imageData.preview} 
-                  alt={imageData.name}
+                  src={imageData.image_path} 
+                  alt={imageData.image_name}
                   className="w-full max-h-96 object-contain mx-auto"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
@@ -108,7 +129,7 @@ export default function ImageView() {
               {/* Image Info */}
               <div className="mt-4 text-center">
                 <p className="text-sm text-muted-foreground">
-                  {imageData.name}
+                  {imageData.image_name}
                 </p>
               </div>
             </div>

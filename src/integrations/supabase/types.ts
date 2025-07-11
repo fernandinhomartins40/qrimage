@@ -14,7 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      image_qrcodes: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          image_name: string
+          image_path: string
+          image_type: string
+          qr_code_data_url: string | null
+          qr_code_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_name: string
+          image_path: string
+          image_type: string
+          qr_code_data_url?: string | null
+          qr_code_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_name?: string
+          image_path?: string
+          image_type?: string
+          qr_code_data_url?: string | null
+          qr_code_url?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

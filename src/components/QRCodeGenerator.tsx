@@ -6,8 +6,10 @@ import { ImageUpload } from './ImageUpload';
 import { Textarea } from '@/components/ui/textarea';
 import { Download, QrCode, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ImageData {
+  id?: string;
   file: File;
   preview: string;
   description: string;
@@ -57,18 +59,27 @@ export function QRCodeGenerator() {
     setIsGenerating(true);
 
     try {
-      // Simular a criação de uma URL para a página de visualização
-      // Em uma implementação real, você enviaria a imagem para um servidor
+      // Upload da imagem para o Supabase Storage
       const timestamp = Date.now();
+      const fileExtension = imageData.file.name.split('.').pop();
+      const fileName = `${timestamp}.${fileExtension}`;
+      const filePath = `images/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('images')
+        .upload(filePath, imageData.file);
+
+      if (uploadError) {
+        throw new Error(`Erro no upload: ${uploadError.message}`);
+      }
+
+      // Gerar a URL pública da imagem
+      const { data: { publicUrl } } = supabase.storage
+        .from('images')
+        .getPublicUrl(filePath);
+
+      // Criar URL para a página de visualização
       const pageUrl = `${window.location.origin}/view/${timestamp}`;
-      
-      // Armazenar os dados no localStorage para simular persistência
-      localStorage.setItem(`image_${timestamp}`, JSON.stringify({
-        name: imageData.file.name,
-        type: imageData.file.type,
-        preview: imageData.preview,
-        description: description,
-      }));
 
       // Gerar o QR code
       const qrCodeDataUrl = await QRCode.toDataURL(pageUrl, {
@@ -80,8 +91,27 @@ export function QRCodeGenerator() {
         }
       });
 
+      // Salvar os dados no banco de dados
+      const { data: insertData, error: insertError } = await supabase
+        .from('image_qrcodes')
+        .insert({
+          image_name: imageData.file.name,
+          image_type: imageData.file.type,
+          image_path: publicUrl,
+          description: description,
+          qr_code_url: pageUrl,
+          qr_code_data_url: qrCodeDataUrl,
+        })
+        .select()
+        .single();
+
+      if (insertError) {
+        throw new Error(`Erro ao salvar dados: ${insertError.message}`);
+      }
+
       setImageData({
         ...imageData,
+        id: insertData.id,
         description: description,
         qrCodeUrl: pageUrl,
         qrCodeDataUrl: qrCodeDataUrl,
@@ -89,7 +119,7 @@ export function QRCodeGenerator() {
 
       toast({
         title: "QR Code gerado com sucesso!",
-        description: "Seu QR code está pronto para download.",
+        description: "Seus dados foram salvos e o QR code está pronto para download.",
         variant: "default",
       });
 
@@ -97,7 +127,7 @@ export function QRCodeGenerator() {
       console.error('Erro ao gerar QR code:', error);
       toast({
         title: "Erro",
-        description: "Erro ao gerar QR code. Tente novamente.",
+        description: error instanceof Error ? error.message : "Erro ao gerar QR code. Tente novamente.",
         variant: "destructive",
       });
     } finally {
