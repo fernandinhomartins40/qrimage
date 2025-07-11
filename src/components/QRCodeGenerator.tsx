@@ -86,7 +86,7 @@ export function QRCodeGenerator() {
         width: 300,
         margin: 2,
         color: {
-          dark: '#8B5CF6',
+          dark: '#000000',
           light: '#FFFFFF'
         }
       });
