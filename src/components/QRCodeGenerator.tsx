@@ -4,7 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ImageUpload } from './ImageUpload';
 import { Textarea } from '@/components/ui/textarea';
-import { Download, QrCode, Loader2 } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Download, QrCode, Loader2, Palette } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -17,10 +19,23 @@ interface ImageData {
   qrCodeDataUrl?: string;
 }
 
+const backgroundColors = [
+  { name: 'Azul', value: '#3b82f6' },
+  { name: 'Verde', value: '#10b981' },
+  { name: 'Roxo', value: '#8b5cf6' },
+  { name: 'Rosa', value: '#ec4899' },
+  { name: 'Amarelo', value: '#f59e0b' },
+  { name: 'Vermelho', value: '#ef4444' },
+  { name: 'Cinza', value: '#6b7280' },
+  { name: 'Preto', value: '#000000' },
+];
+
 export function QRCodeGenerator() {
   const [imageData, setImageData] = useState<ImageData | null>(null);
   const [description, setDescription] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [viewOnlyMode, setViewOnlyMode] = useState(false);
+  const [selectedColor, setSelectedColor] = useState(backgroundColors[0].value);
   const { toast } = useToast();
 
   const handleImageSelect = (file: File, preview: string) => {
@@ -79,7 +94,15 @@ export function QRCodeGenerator() {
         .getPublicUrl(filePath);
 
       // Criar URL para a página de visualização
-      const pageUrl = `${window.location.origin}/view/${timestamp}`;
+      const baseUrl = `${window.location.origin}/view/${timestamp}`;
+      const urlParams = new URLSearchParams();
+      
+      if (viewOnlyMode) {
+        urlParams.append('mode', 'view-only');
+        urlParams.append('bg', selectedColor.replace('#', ''));
+      }
+      
+      const pageUrl = urlParams.toString() ? `${baseUrl}?${urlParams.toString()}` : baseUrl;
 
       // Gerar o QR code
       const qrCodeDataUrl = await QRCode.toDataURL(pageUrl, {
@@ -202,6 +225,57 @@ export function QRCodeGenerator() {
                 <p className="text-xs text-muted-foreground text-right">
                   {description.length}/300 caracteres
                 </p>
+              </div>
+
+              {/* View Only Mode Toggle */}
+              <div className="space-y-4 p-4 bg-muted/20 rounded-lg border border-border/30">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <Palette className="h-4 w-4 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <Label htmlFor="view-only-mode" className="text-sm font-medium text-foreground">
+                      Modo somente visualização
+                    </Label>
+                    <p className="text-xs text-muted-foreground">
+                      Exibe apenas a imagem com fundo colorido, sem descrição
+                    </p>
+                  </div>
+                  <Switch
+                    id="view-only-mode"
+                    checked={viewOnlyMode}
+                    onCheckedChange={setViewOnlyMode}
+                  />
+                </div>
+
+                {/* Color Selector */}
+                {viewOnlyMode && (
+                  <div className="space-y-3">
+                    <Label className="text-sm font-medium text-foreground">
+                      Cor de fundo
+                    </Label>
+                    <div className="grid grid-cols-4 gap-2">
+                      {backgroundColors.map((color) => (
+                        <button
+                          key={color.value}
+                          onClick={() => setSelectedColor(color.value)}
+                          className={`
+                            w-full h-10 rounded-lg border-2 transition-all hover:scale-105
+                            ${selectedColor === color.value 
+                              ? 'border-foreground ring-2 ring-primary/20' 
+                              : 'border-border/50 hover:border-border'
+                            }
+                          `}
+                          style={{ backgroundColor: color.value }}
+                          title={color.name}
+                        />
+                      ))}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Cor selecionada: {backgroundColors.find(c => c.value === selectedColor)?.name}
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Generate Button */}

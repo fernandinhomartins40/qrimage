@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Image as ImageIcon, FileText } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -18,8 +18,15 @@ interface ImageQRCodeData {
 
 export default function ImageView() {
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
   const [imageData, setImageData] = useState<ImageQRCodeData | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Extract URL parameters
+  const mode = searchParams.get('mode');
+  const backgroundColor = searchParams.get('bg');
+  const isViewOnlyMode = mode === 'view-only';
+  const bgColor = backgroundColor ? `#${backgroundColor}` : '#3b82f6';
 
   useEffect(() => {
     const loadImageData = async () => {
@@ -30,11 +37,13 @@ export default function ImageView() {
 
       try {
         // Buscar os dados no Supabase usando o timestamp do ID
+        // Buscar pela URL base (sem parâmetros) ou pela URL completa
+        const baseUrl = `${window.location.origin}/view/${id}`;
         const { data, error } = await supabase
           .from('image_qrcodes')
           .select('*')
-          .eq('qr_code_url', `${window.location.origin}/view/${id}`)
-          .single();
+          .or(`qr_code_url.eq.${baseUrl},qr_code_url.like.${baseUrl}?%`)
+          .maybeSingle();
 
         if (error) {
           console.error('Erro ao carregar dados da imagem:', error);
@@ -82,6 +91,27 @@ export default function ImageView() {
     );
   }
 
+  // Render view-only mode
+  if (isViewOnlyMode) {
+    return (
+      <div 
+        className="min-h-screen flex items-center justify-center p-4"
+        style={{ backgroundColor: bgColor }}
+      >
+        <div className="max-w-4xl w-full">
+          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl">
+            <img 
+              src={imageData.image_path} 
+              alt={imageData.image_name}
+              className="w-full h-auto max-h-[80vh] object-contain rounded-xl shadow-lg"
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Render normal mode
   return (
     <div className="min-h-screen bg-gradient-subtle p-4">
       <div className="max-w-4xl mx-auto">
