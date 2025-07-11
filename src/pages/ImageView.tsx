@@ -125,13 +125,6 @@ export default function ImageView() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
               </div>
-              
-              {/* Image Info */}
-              <div className="mt-4 text-center">
-                <p className="text-sm text-muted-foreground">
-                  {imageData.image_name}
-                </p>
-              </div>
             </div>
 
             {/* Description */}
