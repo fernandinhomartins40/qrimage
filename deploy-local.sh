@@ -79,9 +79,12 @@ docker rmi $IMAGE_NAME 2>/dev/null || true
 
 # Build da nova imagem
 log "Fazendo build da imagem Docker..."
-docker build -t $IMAGE_NAME . --no-cache
-
-success "Imagem Docker criada com sucesso"
+if docker build -t $IMAGE_NAME . --no-cache; then
+    success "Imagem Docker criada com sucesso"
+else
+    error "Falha no build da imagem Docker!"
+    exit 1
+fi
 
 # ====================================
 # ETAPA 3: DEPLOY DO CONTAINER

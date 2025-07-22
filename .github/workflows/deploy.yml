@@ -106,8 +106,22 @@ jobs:
           # ====================================
           log "🚀 ETAPA 5: Fazendo build da aplicação..."
           
-          # Build da imagem Docker
-          docker build -t $APP_NAME:latest .
+          # Build da imagem Docker com mais verbose
+          log "🔨 Fazendo build da imagem Docker..."
+          if docker build -t $APP_NAME:latest . --progress=plain; then
+            log "✅ Build da imagem concluído com sucesso"
+          else
+            log "❌ Falha no build da imagem"
+            exit 1
+          fi
+          
+          # Verificar se imagem foi criada
+          if docker images | grep -q $APP_NAME; then
+            log "✅ Imagem $APP_NAME criada com sucesso"
+          else
+            log "❌ Imagem $APP_NAME não foi criada"
+            exit 1
+          fi
           
           # Executar container
           log "🚀 Iniciando container..."
