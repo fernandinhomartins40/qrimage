@@ -1,0 +1,172 @@
+name: Deploy QRImage to VPS
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  VPS_HOST: '31.97.85.98'
+  VPS_USER: 'root'
+  APP_DIR: '/opt/qrimage'
+  APP_NAME: 'qrimage'
+  APP_PORT: '3020'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Deploy to VPS
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ env.VPS_HOST }}
+        username: ${{ env.VPS_USER }}
+        password: ${{ secrets.VPS_PASSWORD }}
+        port: 22
+        timeout: 600s
+        command_timeout: 600s
+        script: |
+          # Função de log
+          log() {
+            echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1"
+          }
+          
+          # ====================================
+          # ETAPA 1: PREPARAR AMBIENTE
+          # ====================================
+          log "🚀 INICIANDO DEPLOY QRImage - ETAPA 1: Preparando ambiente..."
+          
+          # Configurações
+          APP_DIR="${{ env.APP_DIR }}"
+          APP_NAME="${{ env.APP_NAME }}"
+          APP_PORT="${{ env.APP_PORT }}"
+          REPO_URL="https://github.com/${{ github.repository }}.git"
+          
+          # Criar diretório e navegar
+          mkdir -p $APP_DIR
+          cd $APP_DIR
+          
+          # Parar container existente ANTES de qualquer outra operação
+          log "⏹️ Parando container existente..."
+          docker stop $APP_NAME || true
+          docker rm $APP_NAME || true
+          
+          # ====================================
+          # ETAPA 2: BAIXAR/ATUALIZAR CÓDIGO
+          # ====================================
+          log "🚀 ETAPA 2: Baixando código..."
+          
+          # Se não existe repositório, clonar
+          if [ ! -d ".git" ]; then
+            log "📥 Clonando repositório..."
+            git clone $REPO_URL . || {
+              log "❌ Clone falhou, usando download direto..."
+              curl -L https://github.com/${{ github.repository }}/archive/main.tar.gz | tar xz --strip-components=1
+            }
+          else
+            # Atualizar repositório existente
+            log "🔄 Atualizando repositório..."
+            git fetch origin && git reset --hard origin/main && git clean -fd
+          fi
+          
+          log "✅ Código baixado com sucesso"
+          
+          # ====================================
+          # ETAPA 3: INSTALAR DEPENDÊNCIAS
+          # ====================================
+          log "🚀 ETAPA 3: Verificando/instalando dependências..."
+          
+          # Atualizar sistema
+          apt-get update -qq
+          
+          # Instalar Docker se necessário
+          if ! command -v docker >/dev/null 2>&1; then
+            log "📦 Instalando Docker..."
+            curl -fsSL https://get.docker.com | sh
+            systemctl start docker
+            systemctl enable docker
+          else
+            log "✅ Docker já instalado"
+          fi
+          
+          # ====================================
+          # ETAPA 4: LIMPEZA PRÉ-BUILD
+          # ====================================
+          log "🚀 ETAPA 4: Limpando ambiente..."
+          
+          # Remover imagem antiga se existir
+          docker rmi $APP_NAME:latest || true
+          
+          # ====================================
+          # ETAPA 5: BUILD E DEPLOY
+          # ====================================
+          log "🚀 ETAPA 5: Fazendo build da aplicação..."
+          
+          # Build da imagem Docker
+          docker build -t $APP_NAME:latest .
+          
+          # Executar container
+          log "🚀 Iniciando container..."
+          docker run -d \
+            --name $APP_NAME \
+            --restart unless-stopped \
+            -p $APP_PORT:80 \
+            -e VITE_SUPABASE_URL=http://82.25.69.57:8177 \
+            -e VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlLWluc3RhbmNlLW1hbmFnZXIiLCJpYXQiOjE3NTMxODgzNjksImV4cCI6MTc4NDcyNDM2OX0.49u8tE5eDuYz8hZ_xdKppreOhfgEIfi1WbcUJBaedm8 \
+            -e VITE_SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaXNzIjoic3VwYWJhc2UtaW5zdGFuY2UtbWFuYWdlciIsImlhdCI6MTc1MzE4ODM2OSwiZXhwIjoxNzg0NzI0MzY5fQ.A1O-yIwlrk0owy_1abtLD_C1VXczVJXV1xLEiTHvvA4 \
+            $APP_NAME:latest
+          
+          # ====================================
+          # ETAPA 6: VERIFICAÇÕES
+          # ====================================
+          log "🚀 ETAPA 6: Verificando deployment..."
+          
+          # Aguardar container iniciar
+          log "⏳ Aguardando container iniciar..."
+          sleep 30
+          
+          # Verificar se container está rodando
+          if docker ps | grep -q $APP_NAME; then
+            log "✅ Container $APP_NAME está rodando"
+          else
+            log "❌ Container $APP_NAME NÃO está rodando"
+            log "📋 Logs do container:"
+            docker logs $APP_NAME --tail=50
+            exit 1
+          fi
+          
+          # Health check da aplicação
+          log "🏥 Executando health check..."
+          sleep 10
+          
+          if curl -f http://localhost:$APP_PORT >/dev/null 2>&1; then
+            log "✅ Aplicação health check: OK"
+          else
+            log "❌ Aplicação health check: FALHOU"
+            log "📋 Logs do container:"
+            docker logs $APP_NAME --tail=50
+            exit 1
+          fi
+          
+          # ====================================
+          # ETAPA 7: LIMPEZA PÓS-DEPLOY
+          # ====================================
+          log "🚀 ETAPA 7: Limpando recursos não utilizados..."
+          
+          # Remover imagens não utilizadas
+          docker image prune -f || true
+          
+          # ====================================
+          # ETAPA 8: RESULTADO FINAL
+          # ====================================
+          log "🎉 DEPLOY CONCLUÍDO COM SUCESSO!"
+          log "🌐 Aplicação QRImage disponível em:"
+          log "   - http://${{ env.VPS_HOST }}:$APP_PORT"
+          log "📊 Container Info:"
+          docker ps --filter "name=$APP_NAME" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+          log "💾 Uso de recursos:"
+          docker stats $APP_NAME --no-stream --format "table {{.Container}}\t{{.CPUPerc}}\t{{.MemUsage}}"

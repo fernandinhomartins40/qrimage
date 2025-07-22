@@ -1,40 +1,168 @@
-# Welcome to your Lovable project
+# Gerador de QR Code para Imagens
 
-## Project info
+Aplicação web para gerar QR codes de imagens com armazenamento em Supabase customizado.
 
-**URL**: https://lovable.dev/projects/11fc11b8-7c01-4112-b1e3-786494c62d1c
+## 🚀 Configuração do Supabase
 
-## How can I edit this code?
+Este projeto utiliza uma instância customizada do Supabase. Siga os passos abaixo para configurar:
 
-There are several ways of editing your application.
+### 1. Configuração do Banco de Dados
 
-**Use Lovable**
+Execute o SQL disponível no arquivo `database-setup.sql` no SQL Editor do seu Supabase Dashboard:
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/11fc11b8-7c01-4112-b1e3-786494c62d1c) and start prompting.
+```sql
+-- Execute todo o conteúdo do arquivo database-setup.sql
+```
 
-Changes made via Lovable will be committed automatically to this repo.
+### 2. Configuração das Variáveis de Ambiente
 
-**Use your preferred IDE**
+1. Copie o arquivo `.env.example` para `.env`:
+   ```sh
+   cp .env.example .env
+   ```
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+2. Preencha as variáveis com suas credenciais do Supabase:
+   ```env
+   VITE_SUPABASE_URL=http://82.25.69.57:8177
+   VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlLWluc3RhbmNlLW1hbmFnZXIiLCJpYXQiOjE3NTMxODgzNjksImV4cCI6MTc4NDcyNDM2OX0.49u8tE5eDuYz8hZ_xdKppreOhfgEIfi1WbcUJBaedm8
+   VITE_SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaXNzIjoic3VwYWJhc2UtaW5zdGFuY2UtbWFuYWdlciIsImlhdCI6MTc1MzE4ODM2OSwiZXhwIjoxNzg0NzI0MzY5fQ.A1O-yIwlrk0owy_1abtLD_C1VXczVJXV1xLEiTHvvA4
+   ```
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+## 🛠️ Instalação e Execução
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
+# 1. Clone o repositório
 git clone <YOUR_GIT_URL>
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# 2. Navegue para o diretório
+cd qrimage
 
-# Step 3: Install the necessary dependencies.
+# 3. Instale as dependências
 npm i
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# 4. Configure o arquivo .env (veja seção acima)
+
+# 5. Execute o servidor de desenvolvimento
 npm run dev
 ```
+
+## 📋 Credenciais do Supabase
+
+### URLs e Endpoints
+- **Supabase URL**: `http://82.25.69.57:8177`
+- **API REST URL**: `http://82.25.69.57:8177/rest/v1`
+
+### Chaves de Autenticação
+- **Anon Key**: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlLWluc3RhbmNlLW1hbmFnZXIiLCJpYXQiOjE3NTMxODgzNjksImV4cCI6MTc4NDcyNDM2OX0.49u8tE5eDuYz8hZ_xdKppreOhfgEIfi1WbcUJBaedm8`
+- **Service Role Key**: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaXNzIjoic3VwYWJhc2UtaW5zdGFuY2UtbWFuYWdlciIsImlhdCI6MTc1MzE4ODM2OSwiZXhwIjoxNzg0NzI0MzY5fQ.A1O-yIwlrk0owy_1abtLD_C1VXczVJXV1xLEiTHvvA4`
+- **JWT Secret**: `V2H8Ezr10BTQ9rpEl0gE8x10vZrzGqbom5hwGnouudpS77dY9I2O9zL57ziGOAgr`
+
+### Conexão PostgreSQL Direta
+- **Host**: `82.25.69.57`
+- **Porta**: `5503`
+- **Database**: `postgres`
+- **Username**: `postgres`
+- **Password**: `xk9kTUhPhvmWupdZ`
+
+## 🔧 Funcionalidades
+
+- ✅ Upload de imagens (PNG, JPG, JPEG)
+- ✅ Geração automática de QR codes
+- ✅ Armazenamento seguro no Supabase Storage
+- ✅ Modo visualização simples com cores personalizáveis
+- ✅ Páginas de compartilhamento responsivas
+- ✅ Políticas RLS configuradas para acesso público
+
+## 📁 Estrutura do Projeto
+
+```
+src/
+├── components/
+│   ├── ImageUpload.tsx     # Componente de upload
+│   ├── QRCodeGenerator.tsx # Gerador principal
+│   └── ui/                 # Componentes shadcn/ui
+├── integrations/
+│   └── supabase/
+│       ├── client.ts       # Cliente Supabase configurado
+│       └── types.ts        # Tipos TypeScript do DB
+├── pages/
+│   ├── Index.tsx           # Página inicial
+│   ├── ImageView.tsx       # Visualização de imagens
+│   └── NotFound.tsx        # Página 404
+└── lib/
+    └── utils.ts            # Utilitários
+```
+
+## 🐳 Deploy com Docker
+
+### Deploy Automático (GitHub Actions)
+
+1. **Configure a secret no repositório GitHub**:
+   - Vá em Settings → Secrets and variables → Actions
+   - Adicione a secret `VPS_PASSWORD` com a senha do seu VPS
+
+2. **Push para a branch main**:
+   ```bash
+   git add .
+   git commit -m "Deploy to production"
+   git push origin main
+   ```
+
+3. **Aplicação será deployada automaticamente em**:
+   - `http://31.97.85.98:3020`
+
+### Deploy Local
+
+1. **Via Docker Compose** (recomendado):
+   ```bash
+   docker-compose up -d --build
+   ```
+
+2. **Via script de deploy**:
+   ```bash
+   chmod +x deploy-local.sh
+   ./deploy-local.sh
+   ```
+
+3. **Via Docker manual**:
+   ```bash
+   # Build da imagem
+   docker build -t qrimage .
+   
+   # Executar container
+   docker run -d --name qrimage -p 3020:80 qrimage
+   ```
+
+### Comandos Úteis
+
+```bash
+# Ver logs
+docker logs qrimage -f
+
+# Parar aplicação
+docker stop qrimage
+
+# Reiniciar aplicação
+docker restart qrimage
+
+# Remover aplicação
+docker stop qrimage && docker rm qrimage
+
+# Via docker-compose
+docker-compose down
+docker-compose up -d --build
+docker-compose logs -f
+```
+
+## 🌐 URLs de Acesso
+
+### Produção (VPS)
+- **Aplicação**: `http://31.97.85.98:3020`
+- **Health Check**: `http://31.97.85.98:3020/health`
+
+### Local
+- **Aplicação**: `http://localhost:3020`
+- **Health Check**: `http://localhost:3020/health`
 
 **Edit a file directly in GitHub**
 

@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  qrimage:
+    build: .
+    container_name: qrimage
+    restart: unless-stopped
+    ports:
+      - "3020:80"
+    environment:
+      - VITE_SUPABASE_URL=http://82.25.69.57:8177
+      - VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlLWluc3RhbmNlLW1hbmFnZXIiLCJpYXQiOjE3NTMxODgzNjksImV4cCI6MTc4NDcyNDM2OX0.49u8tE5eDuYz8hZ_xdKppreOhfgEIfi1WbcUJBaedm8
+      - VITE_SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaXNzIjoic3VwYWJhc2UtaW5zdGFuY2UtbWFuYWdlciIsImlhdCI6MTc1MzE4ODM2OSwiZXhwIjoxNzg0NzI0MzY5fQ.A1O-yIwlrk0owy_1abtLD_C1VXczVJXV1xLEiTHvvA4
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      timeout: 10s
+      interval: 30s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "traefik.enable=false"
+      - "app=qrimage"
+      - "environment=production"
