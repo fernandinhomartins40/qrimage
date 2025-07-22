@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Download, QrCode, Loader2, Palette } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface ImageData {
   id?: string;
@@ -37,6 +38,7 @@ export function QRCodeGenerator() {
   const [viewOnlyMode, setViewOnlyMode] = useState(false);
   const [selectedColor, setSelectedColor] = useState(backgroundColors[0].value);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const handleImageSelect = (file: File, preview: string) => {
     setImageData({
@@ -118,6 +120,7 @@ export function QRCodeGenerator() {
       const { data: insertData, error: insertError } = await supabase
         .from('image_qrcodes')
         .insert({
+          user_id: user?.id || null,
           image_name: imageData.file.name,
           image_type: imageData.file.type,
           image_path: publicUrl,
@@ -176,7 +179,7 @@ export function QRCodeGenerator() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-subtle p-4">
+    <div className="bg-gradient-subtle p-4 pt-8">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
