@@ -37,7 +37,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Verificar sessão inicial
     const initializeAuth = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
+        // Timeout para evitar loading infinito
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('Timeout na autenticação')), 10000);
+        });
+
+        const authPromise = supabase.auth.getSession();
+        
+        const { data: { session }, error } = await Promise.race([authPromise, timeoutPromise]) as any;
         
         if (error) {
           console.error('Erro ao obter sessão:', error);
@@ -52,6 +59,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
       } catch (error) {
         console.error('Erro ao inicializar autenticação:', error);
+        toast({
+          title: "Erro de conexão",
+          description: "Não foi possível conectar ao servidor de autenticação.",
+          variant: "destructive",
+        });
       } finally {
         setLoading(false);
       }
