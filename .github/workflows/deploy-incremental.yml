@@ -176,12 +176,22 @@ jobs:
       run: |
         echo "🔄 Atualizando código via git pull incremental..."
         sshpass -p '${{ secrets.VPS_PASSWORD }}' ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "
+          # Criar diretório se não existir
+          mkdir -p ${{ env.DEPLOY_DIR }}
           cd ${{ env.DEPLOY_DIR }}
           
           # Verificar se repositório existe
           if [ ! -d .git ]; then
-            echo '🆕 Primeira vez: clonando repositório...'
-            git clone https://github.com/seu-usuario/qrimage.git .
+            echo '🆕 Primeira vez: preparando diretório...'
+            
+            # Se diretório não está vazio, limpar primeiro
+            if [ \"\$(ls -A .)\" ]; then
+              echo '🧹 Limpando diretório existente...'
+              rm -rf * .* 2>/dev/null || true
+            fi
+            
+            echo '📥 Clonando repositório...'
+            git clone https://github.com/${{ github.repository }}.git .
           else
             echo '📥 Fazendo pull incremental das mudanças...'
             
