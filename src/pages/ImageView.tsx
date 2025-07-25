@@ -99,11 +99,11 @@ export default function ImageView() {
         style={{ backgroundColor: bgColor }}
       >
         <div className="max-w-4xl w-full">
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl">
+          <div>
             <img 
               src={imageData.image_path} 
               alt={imageData.image_name}
-              className="w-full h-auto max-h-[80vh] object-contain rounded-xl shadow-lg"
+              className="w-full h-auto max-h-[80vh] object-contain"
             />
           </div>
         </div>
@@ -131,13 +131,12 @@ export default function ImageView() {
 
             {/* Image Display */}
             <div className="mb-8">
-              <div className="relative overflow-hidden rounded-xl border-2 border-border bg-background shadow-soft">
+              <div>
                 <img 
                   src={imageData.image_path} 
                   alt={imageData.image_name}
                   className="w-full max-h-96 object-contain mx-auto"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
               </div>
             </div>
 

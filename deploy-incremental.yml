@@ -8,13 +8,6 @@ concurrency:
 on:
   push:
     branches: [main]
-    paths:
-      - 'src/**'
-      - 'package*.json'
-      - 'vite.config.ts'
-      - 'Dockerfile'
-      - 'docker-compose.yml'
-      - '.github/workflows/deploy-incremental.yml'
   workflow_dispatch:
 
 env:
