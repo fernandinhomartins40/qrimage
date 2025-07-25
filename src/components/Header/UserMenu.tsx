@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { User, LogOut, Settings } from 'lucide-react';
+import { User, LogOut, Settings, QrCode } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -78,11 +78,7 @@ export function UserMenu() {
           <span>Configurações</span>
         </DropdownMenuItem>
         <DropdownMenuItem className="cursor-pointer">
-          <img 
-            src="/logo_ultrabase.png" 
-            alt="UltraBase Logo" 
-            className="mr-2 h-4 w-4 object-contain" 
-          />
+          <QrCode className="mr-2 h-4 w-4" />
           <span>Meus QR Codes</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
