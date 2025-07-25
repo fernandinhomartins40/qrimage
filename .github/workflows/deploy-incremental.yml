@@ -238,40 +238,47 @@ jobs:
           echo '🛡️ Dados críticos preservados'
         "
 
-    - name: 📦 Instalar Dependências (somente se necessário)
-      if: needs.analyze-changes.outputs.has_package_changes == 'true'
+    - name: 📦 Verificar Necessidade de Rebuild
       run: |
-        echo "📦 Instalando dependências (package.json mudou)..."
-        sshpass -p '${{ secrets.VPS_PASSWORD }}' ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "
-          cd ${{ env.DEPLOY_DIR }}/src
-          npm install --production --silent
-          echo '✅ Dependências atualizadas'
-        "
-
-    - name: 📦 Skip Dependências (não necessário)
-      if: needs.analyze-changes.outputs.has_package_changes == 'false'
-      run: |
-        echo "📦 Pulando instalação de dependências (package.json não mudou)"
-        echo "⚡ Deploy mais rápido!"
+        if [ '${{ needs.analyze-changes.outputs.has_package_changes }}' == 'true' ]; then
+          echo "📦 Rebuild necessário (package.json mudou)"
+          echo "🔨 Docker build será executado sem cache"
+        else
+          echo "📦 Usando cache (package.json não mudou)"
+          echo "⚡ Deploy mais rápido!"
+        fi
 
     - name: 🔄 Restart Inteligente da Aplicação
       if: needs.analyze-changes.outputs.needs_restart == 'true'
       run: |
-        echo "🔄 Reiniciando aplicação (código/config mudou)..."
+        echo "🔄 Reiniciando container (código/config mudou)..."
         sshpass -p '${{ secrets.VPS_PASSWORD }}' ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "
-          cd ${{ env.DEPLOY_DIR }}/src
+          cd ${{ env.DEPLOY_DIR }}
           
-          # Tentar reload primeiro (mais rápido)
-          if pm2 list | grep -q supabase-manager; then
-            echo '🔄 Fazendo reload (preserva conexões)...'
-            pm2 reload supabase-manager
+          # Parar container antigo se existir
+          docker stop ${{ env.APP_NAME }} 2>/dev/null || true
+          docker rm ${{ env.APP_NAME }} 2>/dev/null || true
+          
+          # Build da imagem se houve mudanças
+          if [ '${{ needs.analyze-changes.outputs.has_package_changes }}' == 'true' ]; then
+            echo '🔨 Rebuilding Docker image...'
+            docker build -t ${{ env.APP_NAME }}:latest . --no-cache
           else
-            echo '🚀 Iniciando aplicação...'
-            pm2 start server.js --name supabase-manager
+            echo '⚡ Usando imagem em cache'
+            docker build -t ${{ env.APP_NAME }}:latest . 2>/dev/null || docker build -t ${{ env.APP_NAME }}:latest . --no-cache
           fi
           
-          pm2 save
-          echo '✅ Aplicação atualizada'
+          # Iniciar novo container
+          docker run -d \\\
+            --name ${{ env.APP_NAME }} \\\
+            --restart unless-stopped \\\
+            -p ${{ env.APP_PORT }}:80 \\\
+            -e VITE_SUPABASE_URL=http://82.25.69.57:8176 \\\
+            -e VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlLWluc3RhbmNlLW1hbmFnZXIiLCJpYXQiOjE3NTM0NjgyMDMsImV4cCI6MTc4NTAwNDIwM30.pvtIAW0hu1UU7UWF5DDmpysMHDynOVyVWHKvJoTLcDo \\\
+            -e VITE_SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaXNzIjoic3VwYWJhc2UtaW5zdGFuY2UtbWFuYWdlciIsImlhdCI6MTc1MzQ2ODIwMywiZXhwIjoxNzg1MDA0MjAzfQ.fMpWWzhu8JWQVvoodlnU5_xc1kE7ZlaU8vSjHNEIixg \\\
+            ${{ env.APP_NAME }}:latest
+          
+          echo '✅ Container atualizado'
         "
 
     - name: 📋 Skip Restart (não necessário)
