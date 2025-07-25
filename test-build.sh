@@ -92,8 +92,8 @@ log "🚀 TESTE 3: Testando execução do container"
 if docker run -d \
   --name $APP_NAME \
   -p 3021:80 \
-  -e VITE_SUPABASE_URL=http://82.25.69.57:8177 \
-  -e VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlLWluc3RhbmNlLW1hbmFnZXIiLCJpYXQiOjE3NTMxODgzNjksImV4cCI6MTc4NDcyNDM2OX0.49u8tE5eDuYz8hZ_xdKppreOhfgEIfi1WbcUJBaedm8 \
+          -e VITE_SUPABASE_URL=http://82.25.69.57:8129 \
+        -e VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlLWluc3RhbmNlLW1hbmFnZXIiLCJpYXQiOjE3NTM0NTc5OTUsImV4cCI6MTc4NDk5Mzk5NX0.37ZRuTt8muYWPDaS-xsjje3js2sGApOkjVxpg68pjeYIfi1WbcUJBaedm8 \
   $IMAGE_NAME; then
     success "Container iniciado com sucesso"
 else

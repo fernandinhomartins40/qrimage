@@ -23,9 +23,9 @@ Execute o SQL disponível no arquivo `database-setup.sql` no SQL Editor do seu S
 
 2. Preencha as variáveis com suas credenciais do Supabase:
    ```env
-   VITE_SUPABASE_URL=http://82.25.69.57:8177
-   VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlLWluc3RhbmNlLW1hbmFnZXIiLCJpYXQiOjE3NTMxODgzNjksImV4cCI6MTc4NDcyNDM2OX0.49u8tE5eDuYz8hZ_xdKppreOhfgEIfi1WbcUJBaedm8
-   VITE_SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaXNzIjoic3VwYWJhc2UtaW5zdGFuY2UtbWFuYWdlciIsImlhdCI6MTc1MzE4ODM2OSwiZXhwIjoxNzg0NzI0MzY5fQ.A1O-yIwlrk0owy_1abtLD_C1VXczVJXV1xLEiTHvvA4
+   VITE_SUPABASE_URL=http://82.25.69.57:8129
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlLWluc3RhbmNlLW1hbmFnZXIiLCJpYXQiOjE3NTM0NTc5OTUsImV4cCI6MTc4NDk5Mzk5NX0.37ZRuTt8muYWPDaS-xsjje3js2sGApOkjVxpg68pjeY
+VITE_SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaXNzIjoic3VwYWJhc2UtaW5zdGFuY2UtbWFuYWdlciIsImlhdCI6MTc1MzQ1Nzk5NSwiZXhwIjoxNzg0OTkzOTk1fQ.bGkXZFmvvQRYbkot4iY12aBofCjQqM3M6cAJ6lMWZlYk0owy_1abtLD_C1VXczVJXV1xLEiTHvvA4
    ```
 
 ## 🛠️ Instalação e Execução
@@ -49,8 +49,8 @@ npm run dev
 ## 📋 Credenciais do Supabase
 
 ### URLs e Endpoints
-- **Supabase URL**: `http://82.25.69.57:8177`
-- **API REST URL**: `http://82.25.69.57:8177/rest/v1`
+- **Supabase URL**: `http://82.25.69.57:8129`
+- **API REST URL**: `http://82.25.69.57:8129/rest/v1`
 
 ### Chaves de Autenticação
 - **Anon Key**: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlLWluc3RhbmNlLW1hbmFnZXIiLCJpYXQiOjE3NTMxODgzNjksImV4cCI6MTc4NDcyNDM2OX0.49u8tE5eDuYz8hZ_xdKppreOhfgEIfi1WbcUJBaedm8`
