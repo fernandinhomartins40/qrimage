@@ -6,7 +6,7 @@ import { ImageUpload } from './ImageUpload';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Download, QrCode, Loader2, Palette } from 'lucide-react';
+import { Download, Loader2, Palette } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -201,7 +201,11 @@ export function QRCodeGenerator() {
             <CardContent className="p-6 space-y-6">
               <div className="flex items-center space-x-2 mb-4">
                 <div className="p-2 rounded-lg bg-primary/10">
-                  <QrCode className="h-5 w-5 text-primary" />
+                  <img 
+                    src="/logo_ultrabase.png" 
+                    alt="UltraBase Logo" 
+                    className="h-5 w-5 object-contain" 
+                  />
                 </div>
                 <h2 className="text-2xl font-semibold text-foreground">Criação</h2>
               </div>
@@ -296,7 +300,11 @@ export function QRCodeGenerator() {
                   </>
                 ) : (
                   <>
-                    <QrCode className="mr-2 h-5 w-5" />
+                    <img 
+                      src="/logo_ultrabase.png" 
+                      alt="UltraBase Logo" 
+                      className="mr-2 h-5 w-5 object-contain" 
+                    />
                     Gerar QR Code
                   </>
                 )}
@@ -350,7 +358,11 @@ export function QRCodeGenerator() {
                 <div className="h-96 flex items-center justify-center">
                   <div className="text-center space-y-4">
                     <div className="p-8 rounded-full bg-muted/20 mx-auto w-fit">
-                      <QrCode className="h-16 w-16 text-muted-foreground" />
+                      <img 
+                        src="/logo_ultrabase.png" 
+                        alt="UltraBase Logo" 
+                        className="h-16 w-16 object-contain opacity-50" 
+                      />
                     </div>
                     <div>
                       <h3 className="text-lg font-medium text-foreground mb-2">

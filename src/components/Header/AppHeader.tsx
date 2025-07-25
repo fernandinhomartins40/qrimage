@@ -1,4 +1,3 @@
-import { QrCode } from 'lucide-react';
 import { UserMenu } from './UserMenu';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -12,11 +11,15 @@ export function AppHeader() {
         <div className="mr-4 flex items-center space-x-3">
           <div className="flex items-center space-x-2">
             <div className="p-2 rounded-lg bg-primary/10">
-              <QrCode className="h-6 w-6 text-primary" />
+              <img 
+                src="/logo_ultrabase.png" 
+                alt="UltraBase Logo" 
+                className="h-6 w-6 object-contain" 
+              />
             </div>
             <div className="flex flex-col">
               <h1 className="text-lg font-semibold text-foreground">
-                QR Generator
+                UltraBase QR
               </h1>
               <p className="text-xs text-muted-foreground hidden sm:block">
                 Gerador de QR Codes para Imagens
