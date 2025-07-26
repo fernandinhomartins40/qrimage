@@ -61,13 +61,13 @@ jobs:
           echo "📦 Mudanças em dependências detectadas"
         fi
         
-        if echo "$CHANGED_FILES" | grep -E "(Dockerfile|docker-compose\.yml|nginx\.conf|\.env)" > /dev/null; then
+        if echo "$CHANGED_FILES" | grep -E "(Dockerfile|docker-compose\.yml|nginx\.conf|\.env|\.github/workflows)" > /dev/null; then
           HAS_CONFIG=true
           echo "⚙️ Mudanças de configuração detectadas"
         fi
         
-        # Determinar se precisa restart
-        if [[ "$HAS_CODE" == "true" || "$HAS_CONFIG" == "true" ]]; then
+        # Determinar se precisa restart (sempre restart para garantir deploy)
+        if [[ "$HAS_CODE" == "true" || "$HAS_CONFIG" == "true" || "$HAS_PACKAGE" == "true" ]]; then
           NEEDS_RESTART=true
         fi
         
@@ -284,8 +284,36 @@ jobs:
     - name: 📋 Skip Restart (não necessário)
       if: needs.analyze-changes.outputs.needs_restart == 'false'
       run: |
-        echo "📋 Restart não necessário (apenas docs/workflows mudaram)"
-        echo "⚡ Aplicação continua rodando sem interrupção!"
+        echo "📋 Restart não necessário, mas verificando se container existe..."
+        sshpass -p '${{ secrets.VPS_PASSWORD }}' ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "
+          cd ${{ env.DEPLOY_DIR }}
+          
+          # Verificar se container existe
+          if ! docker ps | grep -q ${{ env.APP_NAME }}; then
+            echo '🚀 Container não encontrado, criando...'
+            
+            # Parar e remover container antigo se existir
+            docker stop ${{ env.APP_NAME }} 2>/dev/null || true
+            docker rm ${{ env.APP_NAME }} 2>/dev/null || true
+            
+            # Build da imagem
+            docker build -t ${{ env.APP_NAME }}:latest . 2>/dev/null || docker build -t ${{ env.APP_NAME }}:latest . --no-cache
+            
+            # Iniciar container
+            docker run -d \\\
+              --name ${{ env.APP_NAME }} \\\
+              --restart unless-stopped \\\
+              -p ${{ env.APP_PORT }}:80 \\\
+              -e VITE_SUPABASE_URL=http://82.25.69.57:8176 \\\
+              -e VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlLWluc3RhbmNlLW1hbmFnZXIiLCJpYXQiOjE3NTM0NjgyMDMsImV4cCI6MTc4NTAwNDIwM30.pvtIAW0hu1UU7UWF5DDmpysMHDynOVyVWHKvJoTLcDo \\\
+              -e VITE_SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaXNzIjoic3VwYWJhc2UtaW5zdGFuY2UtbWFuYWdlciIsIklhdCI6MTc1MzQ2ODIwMywiZXhwIjoxNzg1MDA0MjAzfQ.fMpWWzhu8JWQVvoodlnU5_xc1kE7ZlaU8vSjHNEIixg \\\
+              ${{ env.APP_NAME }}:latest
+              
+            echo '✅ Container criado'
+          else
+            echo '✅ Container já está rodando'
+          fi
+        "
 
     - name: ⏳ Aguardar Estabilização
       if: needs.analyze-changes.outputs.needs_restart == 'true'
