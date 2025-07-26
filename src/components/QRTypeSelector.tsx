@@ -1,8 +1,10 @@
 import { motion } from 'framer-motion';
-import { AnimatedCard, AnimatedCardContent, AnimatedCardHeader } from '@/components/ui/animated-card';
-import { GradientText } from '@/components/ui/gradient-text';
-import { FloatingIcon } from '@/components/ui/floating-icon';
+import { SoftCard, SoftCardContent, SoftCardHeader } from '@/components/ui/soft-card';
+import { ColorAccent } from '@/components/ui/color-accent';
 import { Badge } from '@/components/ui/badge';
+import { AnimatedContainer } from '@/components/ui/animated-container';
+import { GlowEffect, ShimmerEffect } from '@/components/ui/glow-effect';
+import { FloatingElement, ParticleField } from '@/components/ui/floating-elements';
 import { 
   Link, 
   FileText, 
@@ -16,7 +18,6 @@ import {
   Calendar,
   DollarSign,
   Sparkles,
-  Zap,
   Star
 } from 'lucide-react';
 import { QRCodeType } from '@/types/qr-types';
@@ -33,8 +34,7 @@ interface QRTypeOption {
   icon: React.ComponentType<{ className?: string }>;
   category: 'basic' | 'contact' | 'location' | 'payment';
   popular?: boolean;
-  gradient: string;
-  iconColor: string;
+  color: string;
 }
 
 const qrTypes: QRTypeOption[] = [
@@ -46,8 +46,7 @@ const qrTypes: QRTypeOption[] = [
     icon: Link,
     category: 'basic',
     popular: true,
-    gradient: 'from-blue-500 to-cyan-500',
-    iconColor: 'bg-gradient-to-br from-blue-500 to-cyan-500'
+    color: 'blue'
   },
   {
     type: 'text',
@@ -55,8 +54,7 @@ const qrTypes: QRTypeOption[] = [
     description: 'Exibir uma mensagem de texto simples',
     icon: FileText,
     category: 'basic',
-    gradient: 'from-gray-500 to-slate-600',
-    iconColor: 'bg-gradient-to-br from-gray-500 to-slate-600'
+    color: 'gray'
   },
   {
     type: 'wifi',
@@ -65,8 +63,7 @@ const qrTypes: QRTypeOption[] = [
     icon: Wifi,
     category: 'basic',
     popular: true,
-    gradient: 'from-emerald-500 to-teal-500',
-    iconColor: 'bg-gradient-to-br from-emerald-500 to-teal-500'
+    color: 'teal'
   },
   
   // Contact
@@ -77,8 +74,7 @@ const qrTypes: QRTypeOption[] = [
     icon: User,
     category: 'contact',
     popular: true,
-    gradient: 'from-purple-500 to-violet-500',
-    iconColor: 'bg-gradient-to-br from-purple-500 to-violet-500'
+    color: 'purple'
   },
   {
     type: 'sms',
@@ -86,8 +82,7 @@ const qrTypes: QRTypeOption[] = [
     description: 'Enviar mensagem de texto pré-definida',
     icon: MessageSquare,
     category: 'contact',
-    gradient: 'from-amber-500 to-orange-500',
-    iconColor: 'bg-gradient-to-br from-amber-500 to-orange-500'
+    color: 'orange'
   },
   {
     type: 'whatsapp',
@@ -96,8 +91,7 @@ const qrTypes: QRTypeOption[] = [
     icon: MessageCircle,
     category: 'contact',
     popular: true,
-    gradient: 'from-green-500 to-emerald-500',
-    iconColor: 'bg-gradient-to-br from-green-500 to-emerald-500'
+    color: 'green'
   },
   {
     type: 'email',
@@ -105,8 +99,7 @@ const qrTypes: QRTypeOption[] = [
     description: 'Enviar email pré-preenchido',
     icon: Mail,
     category: 'contact',
-    gradient: 'from-red-500 to-pink-500',
-    iconColor: 'bg-gradient-to-br from-red-500 to-pink-500'
+    color: 'red'
   },
   {
     type: 'phone',
@@ -114,8 +107,7 @@ const qrTypes: QRTypeOption[] = [
     description: 'Ligar para um número específico',
     icon: Phone,
     category: 'contact',
-    gradient: 'from-indigo-500 to-blue-500',
-    iconColor: 'bg-gradient-to-br from-indigo-500 to-blue-500'
+    color: 'indigo'
   },
   
   // Location
@@ -125,8 +117,7 @@ const qrTypes: QRTypeOption[] = [
     description: 'Mostrar localização no mapa',
     icon: MapPin,
     category: 'location',
-    gradient: 'from-rose-500 to-pink-500',
-    iconColor: 'bg-gradient-to-br from-rose-500 to-pink-500'
+    color: 'rose'
   },
   {
     type: 'event',
@@ -134,8 +125,7 @@ const qrTypes: QRTypeOption[] = [
     description: 'Adicionar evento ao calendário',
     icon: Calendar,
     category: 'location',
-    gradient: 'from-violet-500 to-purple-500',
-    iconColor: 'bg-gradient-to-br from-violet-500 to-purple-500'
+    color: 'purple'
   },
   
   // Payment
@@ -145,35 +135,34 @@ const qrTypes: QRTypeOption[] = [
     description: 'Pagamento via PIX (Brasil)',
     icon: DollarSign,
     category: 'payment',
-    gradient: 'from-yellow-500 to-amber-500',
-    iconColor: 'bg-gradient-to-br from-yellow-500 to-amber-500'
+    color: 'yellow'
   }
 ];
 
 const categoryConfig = {
   basic: {
-    title: '⚡ Essenciais',
+    title: 'Essenciais',
     subtitle: 'Tipos fundamentais para uso diário',
-    icon: Zap,
-    gradient: 'from-blue-600 to-cyan-600'
+    icon: Sparkles,
+    color: 'blue'
   },
   contact: {
-    title: '👥 Comunicação',
+    title: 'Comunicação',
     subtitle: 'Conecte-se facilmente com pessoas',
     icon: MessageCircle,
-    gradient: 'from-purple-600 to-pink-600'
+    color: 'purple'
   },
   location: {
-    title: '📍 Localização',
+    title: 'Localização',
     subtitle: 'Compartilhe lugares e eventos',
     icon: MapPin,
-    gradient: 'from-emerald-600 to-teal-600'
+    color: 'teal'
   },
   payment: {
-    title: '💰 Pagamentos',
+    title: 'Pagamentos',
     subtitle: 'Receba pagamentos digitais',
     icon: DollarSign,
-    gradient: 'from-yellow-600 to-orange-600'
+    color: 'yellow'
   }
 };
 
@@ -187,79 +176,72 @@ export function QRTypeSelector({ selectedType, onTypeSelect }: QRTypeSelectorPro
   }, {} as Record<string, QRTypeOption[]>);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 dark:from-slate-900 dark:via-blue-900/20 dark:to-purple-900/20">
-      <div className="relative overflow-hidden">
-        {/* Background decorations */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-600/20 rounded-full blur-3xl" />
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-pink-400/20 to-red-600/20 rounded-full blur-3xl" />
-        </div>
-
-        <div className="relative z-10 space-y-12 py-12">
+    <div className="min-h-screen bg-slate-50/50 relative overflow-hidden">
+      <ParticleField className="opacity-20" particleCount={12} colors={['blue', 'purple', 'teal', 'green']} />
+      <div className="relative z-10">
+        <div className="max-w-7xl mx-auto px-4 py-12 space-y-12">
           {/* Header */}
-          <motion.div 
-            className="text-center space-y-4"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: [0.21, 1, 0.81, 1] }}
+          <AnimatedContainer 
+            className="text-center space-y-6"
+            animation="slide"
+            direction="up"
+            delay={0.1}
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-white/20 shadow-lg">
-              <Sparkles className="h-4 w-4 text-purple-500" />
-              <span className="text-sm font-medium text-slate-600 dark:text-slate-300">
-                Gerador Inteligente de QR Codes
-              </span>
+            <GlowEffect color="blue" intensity="subtle">
+              <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white shadow-sm border border-gray-100">
+                <FloatingElement intensity="subtle">
+                  <ColorAccent color="blue" size="sm">
+                    <Sparkles className="h-3 w-3" />
+                  </ColorAccent>
+                </FloatingElement>
+                <span className="text-sm font-medium text-gray-600">
+                  Gerador Inteligente de QR Codes
+                </span>
+              </div>
+            </GlowEffect>
+            
+            <div className="space-y-4">
+              <h1 className="text-4xl md:text-5xl font-bold text-gray-900">
+                Escolha o tipo de{' '}
+                <span className="text-blue-600">QR Code</span>
+              </h1>
+              
+              <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+                Selecione o tipo de conteúdo que deseja compartilhar de forma inteligente e moderna
+              </p>
             </div>
-            
-            <h1 className="text-4xl md:text-6xl font-bold text-slate-800 dark:text-white">
-              Escolha o tipo de{' '}
-              <GradientText 
-                gradient="from-blue-600 via-purple-600 to-pink-600"
-                animate
-              >
-                QR Code
-              </GradientText>
-            </h1>
-            
-            <p className="text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
-              Selecione o tipo de conteúdo que deseja compartilhar de forma inteligente e moderna
-            </p>
-          </motion.div>
+          </AnimatedContainer>
 
           {/* Categories */}
-          <div className="max-w-7xl mx-auto px-4 space-y-16">
+          <div className="space-y-16">
             {Object.entries(groupedTypes).map(([category, types], categoryIndex) => {
               const config = categoryConfig[category as keyof typeof categoryConfig];
               const Icon = config.icon;
               
               return (
-                <motion.div 
+                <AnimatedContainer
                   key={category}
-                  initial={{ opacity: 0, y: 40 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ 
-                    duration: 0.8,
-                    delay: (categoryIndex + 1) * 0.2,
-                    ease: [0.21, 1, 0.81, 1]
-                  }}
+                  animation="slide"
+                  direction="up"
+                  delay={categoryIndex * 0.15}
                   className="space-y-8"
                 >
                   {/* Category Header */}
-                  <div className="text-center space-y-4">
-                    <div className="inline-flex items-center gap-3">
-                      <FloatingIcon
-                        color={`bg-gradient-to-br ${config.gradient}`}
-                        size="md"
-                      >
-                        <Icon className="h-6 w-6" />
-                      </FloatingIcon>
-                      <div className="text-left">
-                        <h2 className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-white">
-                          {config.title}
-                        </h2>
-                        <p className="text-slate-600 dark:text-slate-400">
-                          {config.subtitle}
-                        </p>
-                      </div>
+                  <div className="flex items-center gap-4">
+                    <FloatingElement intensity="subtle" delay={categoryIndex * 0.2}>
+                      <GlowEffect color={config.color} intensity="medium">
+                        <ColorAccent color={config.color} size="md">
+                          <Icon className="h-5 w-5" />
+                        </ColorAccent>
+                      </GlowEffect>
+                    </FloatingElement>
+                    <div>
+                      <h2 className="text-2xl font-bold text-gray-900">
+                        {config.title}
+                      </h2>
+                      <p className="text-gray-600">
+                        {config.subtitle}
+                      </p>
                     </div>
                   </div>
                   
@@ -270,65 +252,66 @@ export function QRTypeSelector({ selectedType, onTypeSelect }: QRTypeSelectorPro
                       const isSelected = selectedType === type.type;
                       
                       return (
-                        <AnimatedCard
+                        <SoftCard
                           key={type.type}
                           delay={index}
-                          glow={isSelected}
-                          className={`cursor-pointer transition-all duration-300 h-full ${
-                            isSelected 
-                              ? `ring-2 ring-offset-2 ring-blue-500 bg-gradient-to-br ${type.gradient}/10` 
-                              : 'hover:shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm'
-                          }`}
+                          accentColor={type.color}
+                          selected={isSelected}
+                          className="cursor-pointer h-full"
                           onClick={() => onTypeSelect(type.type)}
                         >
-                          <AnimatedCardHeader className="space-y-4">
-                            <div className="flex items-start justify-between">
-                              <FloatingIcon
-                                color={type.iconColor}
-                                size="md"
-                                glow={isSelected}
-                              >
-                                <Icon className="h-6 w-6" />
-                              </FloatingIcon>
+                          <SoftCardHeader>
+                            <div className="flex items-start justify-between mb-4">
+                              <ShimmerEffect color={type.color}>
+                                <ColorAccent 
+                                  color={type.color} 
+                                  size="md"
+                                  soft={!isSelected}
+                                >
+                                  <Icon className="h-5 w-5" />
+                                </ColorAccent>
+                              </ShimmerEffect>
                               
-                              <div className="flex gap-2">
-                                {type.popular && (
-                                  <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0 shadow-lg">
-                                    <Star className="h-3 w-3 mr-1" />
+                              {type.popular && (
+                                <GlowEffect color="yellow" intensity="subtle">
+                                  <Badge className="bg-amber-100 text-amber-700 border-amber-200 hover:bg-amber-200">
+                                    <FloatingElement intensity="subtle">
+                                      <Star className="h-3 w-3 mr-1" />
+                                    </FloatingElement>
                                     Popular
                                   </Badge>
-                                )}
-                                {isSelected && (
-                                  <Badge className="bg-gradient-to-r from-green-400 to-emerald-500 text-white border-0 shadow-lg">
-                                    ✓ Selecionado
-                                  </Badge>
-                                )}
-                              </div>
+                                </GlowEffect>
+                              )}
                             </div>
                             
-                            <div>
-                              <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">
+                            <div className="space-y-2">
+                              <h3 className="text-lg font-semibold text-gray-900">
                                 {type.title}
                               </h3>
-                              <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
+                              <p className="text-sm text-gray-600 leading-relaxed">
                                 {type.description}
                               </p>
                             </div>
-                          </AnimatedCardHeader>
+                          </SoftCardHeader>
                           
-                          <AnimatedCardContent className="pt-0">
-                            <motion.div 
-                              className={`w-full h-1 rounded-full bg-gradient-to-r ${type.gradient}`}
-                              initial={{ scaleX: 0 }}
-                              animate={{ scaleX: isSelected ? 1 : 0.3 }}
-                              transition={{ duration: 0.3 }}
-                            />
-                          </AnimatedCardContent>
-                        </AnimatedCard>
+                          <SoftCardContent>
+                            {isSelected && (
+                              <motion.div 
+                                className="flex items-center gap-2 text-xs font-medium text-blue-600"
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.3 }}
+                              >
+                                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                Selecionado
+                              </motion.div>
+                            )}
+                          </SoftCardContent>
+                        </SoftCard>
                       );
                     })}
                   </div>
-                </motion.div>
+                </AnimatedContainer>
               );
             })}
           </div>
