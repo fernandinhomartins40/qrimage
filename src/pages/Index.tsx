@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { AppHeader } from '@/components/Header/AppHeader';
 import { QRTypeSelector } from '@/components/QRTypeSelector';
 import { QRCodeGenerator } from '@/components/QRCodeGenerator';
@@ -18,31 +19,38 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <AppHeader />
-      <div className="container mx-auto px-4 py-8">
+      
+      <AnimatePresence mode="wait">
         {!showGenerator ? (
-          <QRTypeSelector 
-            selectedType={selectedType}
-            onTypeSelect={handleTypeSelect}
-          />
+          <motion.div
+            key="selector"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, x: -100 }}
+            transition={{ duration: 0.5 }}
+          >
+            <QRTypeSelector 
+              selectedType={selectedType}
+              onTypeSelect={handleTypeSelect}
+            />
+          </motion.div>
         ) : (
-          <div className="space-y-6">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={handleBackToSelector}
-                className="text-primary hover:text-primary/80 flex items-center gap-2"
-              >
-                ← Voltar para seleção de tipos
-              </button>
-            </div>
+          <motion.div
+            key="generator"
+            initial={{ opacity: 0, x: 100 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 100 }}
+            transition={{ duration: 0.5 }}
+          >
             <QRCodeGenerator 
               qrType={selectedType}
               onTypeChange={handleBackToSelector}
             />
-          </div>
+          </motion.div>
         )}
-      </div>
+      </AnimatePresence>
     </div>
   );
 };
