@@ -212,31 +212,39 @@ jobs:
           fi
         "
 
+    - name: 🐳 Instalar e Configurar Docker
+      run: |
+        echo "🐳 Verificando e instalando Docker..."
+        sshpass -p '${{ secrets.VPS_PASSWORD }}' ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "
+          # Verificar se Docker está instalado
+          if ! command -v docker >/dev/null 2>&1; then
+            echo '📦 Instalando Docker...'
+            curl -fsSL https://get.docker.com | sh
+            systemctl start docker
+            systemctl enable docker
+            echo '✅ Docker instalado'
+          else
+            echo '✅ Docker já instalado'
+            systemctl start docker || true
+          fi
+          
+          # Verificar se Docker está rodando
+          if systemctl is-active --quiet docker; then
+            echo '✅ Docker está rodando'
+          else
+            echo '❌ Docker não está rodando'
+            systemctl status docker
+            exit 1
+          fi
+          
+          echo '🔍 Versão do Docker:'
+          docker --version
+        "
+
     - name: 🔄 Restaurar Dados Preservados
       run: |
         echo "🔄 Garantindo preservação dos dados..."
-        sshpass -p '${{ secrets.VPS_PASSWORD }}' ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "
-          cd ${{ env.DEPLOY_DIR }}
-          
-          # Restaurar instances.json se foi perdido no git pull
-          if [ ! -f src/instances.json ] && [ -f /tmp/instances_backup.json ]; then
-            mkdir -p src
-            cp /tmp/instances_backup.json src/instances.json
-            echo '✅ instances.json restaurado do backup rápido'
-          elif [ -f src/instances.json ]; then
-            echo '✅ instances.json já presente'
-          fi
-          
-          # Verificar se backup completo existe e restaurar se necessário
-          LATEST_BACKUP=\$(ls -t /opt/supabase-manager-backups/backup_* 2>/dev/null | head -1 || echo '')
-          if [ ! -f src/instances.json ] && [ -n \"\$LATEST_BACKUP\" ] && [ -f \"\$LATEST_BACKUP/instances.json\" ]; then
-            mkdir -p src
-            cp \"\$LATEST_BACKUP/instances.json\" src/instances.json
-            echo '✅ instances.json restaurado do backup completo'
-          fi
-          
-          echo '🛡️ Dados críticos preservados'
-        "
+        echo "ℹ️ Dados serão restaurados após criação do container"
 
     - name: 📦 Verificar Necessidade de Rebuild
       run: |
@@ -260,13 +268,22 @@ jobs:
           docker rm ${{ env.APP_NAME }} 2>/dev/null || true
           
           # Build da imagem se houve mudanças
+          echo '🔍 Verificando arquivos disponíveis:'
+          ls -la
+          
           if [ '${{ needs.analyze-changes.outputs.has_package_changes }}' == 'true' ]; then
-            echo '🔨 Rebuilding Docker image...'
-            docker build -t ${{ env.APP_NAME }}:latest . --no-cache
+            echo '🔨 Rebuilding Docker image (no cache)...'
+            docker build -t ${{ env.APP_NAME }}:latest . --no-cache --progress=plain
           else
-            echo '⚡ Usando imagem em cache'
-            docker build -t ${{ env.APP_NAME }}:latest . 2>/dev/null || docker build -t ${{ env.APP_NAME }}:latest . --no-cache
+            echo '⚡ Usando imagem em cache...'
+            docker build -t ${{ env.APP_NAME }}:latest . --progress=plain 2>/dev/null || {
+              echo '🔨 Cache falhou, building sem cache...'
+              docker build -t ${{ env.APP_NAME }}:latest . --no-cache --progress=plain
+            }
           fi
+          
+          echo '✅ Build da imagem concluído'
+          docker images | grep ${{ env.APP_NAME }}
           
           # Iniciar novo container
           docker run -d \\\
@@ -297,7 +314,17 @@ jobs:
             docker rm ${{ env.APP_NAME }} 2>/dev/null || true
             
             # Build da imagem
-            docker build -t ${{ env.APP_NAME }}:latest . 2>/dev/null || docker build -t ${{ env.APP_NAME }}:latest . --no-cache
+            echo '🔍 Verificando arquivos disponíveis:'
+            ls -la
+            
+            echo '🔨 Building Docker image...'
+            docker build -t ${{ env.APP_NAME }}:latest . --progress=plain 2>/dev/null || {
+              echo '🔨 Primeira tentativa falhou, building sem cache...'
+              docker build -t ${{ env.APP_NAME }}:latest . --no-cache --progress=plain
+            }
+            
+            echo '✅ Build da imagem concluído'
+            docker images | grep ${{ env.APP_NAME }}
             
             # Iniciar container
             docker run -d \\\
