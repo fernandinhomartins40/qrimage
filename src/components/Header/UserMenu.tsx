@@ -24,6 +24,11 @@ export function UserMenu() {
     setIsLoggingOut(false);
   };
 
+  const handleNavigate = (path: string) => {
+    console.log(`Navegando para: ${path}`);
+    navigate(path);
+  };
+
   const getUserDisplayName = () => {
     if (user?.user_metadata?.full_name) {
       return user.user_metadata.full_name;
@@ -73,21 +78,21 @@ export function UserMenu() {
         <DropdownMenuSeparator />
         <DropdownMenuItem 
           className="cursor-pointer"
-          onClick={() => navigate('/profile')}
+          onSelect={() => handleNavigate('/profile')}
         >
           <User className="mr-2 h-4 w-4" />
           <span>Perfil</span>
         </DropdownMenuItem>
         <DropdownMenuItem 
           className="cursor-pointer"
-          onClick={() => navigate('/settings')}
+          onSelect={() => handleNavigate('/settings')}
         >
           <Settings className="mr-2 h-4 w-4" />
           <span>Configurações</span>
         </DropdownMenuItem>
         <DropdownMenuItem 
           className="cursor-pointer"
-          onClick={() => navigate('/my-qr-codes')}
+          onSelect={() => handleNavigate('/my-qr-codes')}
         >
           <QrCode className="mr-2 h-4 w-4" />
           <span>Meus QR Codes</span>
