@@ -286,14 +286,7 @@ jobs:
           docker images | grep ${{ env.APP_NAME }}
           
           # Iniciar novo container
-          docker run -d \\\
-            --name ${{ env.APP_NAME }} \\\
-            --restart unless-stopped \\\
-            -p ${{ env.APP_PORT }}:80 \\\
-            -e VITE_SUPABASE_URL=http://82.25.69.57:8176 \\\
-            -e VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlLWluc3RhbmNlLW1hbmFnZXIiLCJpYXQiOjE3NTM0NjgyMDMsImV4cCI6MTc4NTAwNDIwM30.pvtIAW0hu1UU7UWF5DDmpysMHDynOVyVWHKvJoTLcDo \\\
-            -e VITE_SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaXNzIjoic3VwYWJhc2UtaW5zdGFuY2UtbWFuYWdlciIsImlhdCI6MTc1MzQ2ODIwMywiZXhwIjoxNzg1MDA0MjAzfQ.fMpWWzhu8JWQVvoodlnU5_xc1kE7ZlaU8vSjHNEIixg \\\
-            ${{ env.APP_NAME }}:latest
+          docker run -d --name ${{ env.APP_NAME }} --restart unless-stopped -p ${{ env.APP_PORT }}:80 -e VITE_SUPABASE_URL=http://82.25.69.57:8176 -e VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlLWluc3RhbmNlLW1hbmFnZXIiLCJpYXQiOjE3NTM0NjgyMDMsImV4cCI6MTc4NTAwNDIwM30.pvtIAW0hu1UU7UWF5DDmpysMHDynOVyVWHKvJoTLcDo -e VITE_SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaXNzIjoic3VwYWJhc2UtaW5zdGFuY2UtbWFuYWdlciIsImlhdCI6MTc1MzQ2ODIwMywiZXhwIjoxNzg1MDA0MjAzfQ.fMpWWzhu8JWQVvoodlnU5_xc1kE7ZlaU8vSjHNEIixg ${{ env.APP_NAME }}:latest
           
           echo '✅ Container atualizado'
         "
@@ -327,14 +320,7 @@ jobs:
             docker images | grep ${{ env.APP_NAME }}
             
             # Iniciar container
-            docker run -d \\\
-              --name ${{ env.APP_NAME }} \\\
-              --restart unless-stopped \\\
-              -p ${{ env.APP_PORT }}:80 \\\
-              -e VITE_SUPABASE_URL=http://82.25.69.57:8176 \\\
-              -e VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlLWluc3RhbmNlLW1hbmFnZXIiLCJpYXQiOjE3NTM0NjgyMDMsImV4cCI6MTc4NTAwNDIwM30.pvtIAW0hu1UU7UWF5DDmpysMHDynOVyVWHKvJoTLcDo \\\
-              -e VITE_SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaXNzIjoic3VwYWJhc2UtaW5zdGFuY2UtbWFuYWdlciIsIklhdCI6MTc1MzQ2ODIwMywiZXhwIjoxNzg1MDA0MjAzfQ.fMpWWzhu8JWQVvoodlnU5_xc1kE7ZlaU8vSjHNEIixg \\\
-              ${{ env.APP_NAME }}:latest
+            docker run -d --name ${{ env.APP_NAME }} --restart unless-stopped -p ${{ env.APP_PORT }}:80 -e VITE_SUPABASE_URL=http://82.25.69.57:8176 -e VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlLWluc3RhbmNlLW1hbmFnZXIiLCJpYXQiOjE3NTM0NjgyMDMsImV4cCI6MTc4NTAwNDIwM30.pvtIAW0hu1UU7UWF5DDmpysMHDynOVyVWHKvJoTLcDo -e VITE_SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaXNzIjoic3VwYWJhc2UtaW5zdGFuY2UtbWFuYWdlciIsImlhdCI6MTc1MzQ2ODIwMywiZXhwIjoxNzg1MDA0MjAzfQ.fMpWWzhu8JWQVvoodlnU5_xc1kE7ZlaU8vSjHNEIixg ${{ env.APP_NAME }}:latest
               
             echo '✅ Container criado'
           else
@@ -373,14 +359,7 @@ jobs:
             cd ${{ env.DEPLOY_DIR }}
             
             # Tentar criar container se não existir
-            docker run -d \\\
-              --name ${{ env.APP_NAME }} \\\
-              --restart unless-stopped \\\
-              -p ${{ env.APP_PORT }}:80 \\\
-              -e VITE_SUPABASE_URL=http://82.25.69.57:8176 \\\
-              -e VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlLWluc3RhbmNlLW1hbmFnZXIiLCJpYXQiOjE3NTM0NjgyMDMsImV4cCI6MTc4NTAwNDIwM30.pvtIAW0hu1UU7UWF5DDmpysMHDynOVyVWHKvJoTLcDo \\\
-              -e VITE_SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaXNzIjoic3VwYWJhc2UtaW5zdGFuY2UtbWFuYWdlciIsImlhdCI6MTc1MzQ2ODIwMywiZXhwIjoxNzg1MDA0MjAzfQ.fMpWWzhu8JWQVvoodlnU5_xc1kE7ZlaU8vSjHNEIixg \\\
-              ${{ env.APP_NAME }}:latest 2>&1 || {
+            docker run -d --name ${{ env.APP_NAME }} --restart unless-stopped -p ${{ env.APP_PORT }}:80 -e VITE_SUPABASE_URL=http://82.25.69.57:8176 -e VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlLWluc3RhbmNlLW1hbmFnZXIiLCJpYXQiOjE3NTM0NjgyMDMsImV4cCI6MTc4NTAwNDIwM30.pvtIAW0hu1UU7UWF5DDmpysMHDynOVyVWHKvJoTLcDo -e VITE_SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaXNzIjoic3VwYWJhc2UtaW5zdGFuY2UtbWFuYWdlciIsImlhdCI6MTc1MzQ2ODIwMywiZXhwIjoxNzg1MDA0MjAzfQ.fMpWWzhu8JWQVvoodlnU5_xc1kE7ZlaU8vSjHNEIixg ${{ env.APP_NAME }}:latest 2>&1 || {
                 echo '❌ Falha ao criar container'
                 exit 1
               }
