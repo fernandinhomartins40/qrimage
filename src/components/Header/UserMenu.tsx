@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { User, LogOut, Settings, QrCode } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -14,6 +15,7 @@ import { useAuth } from '@/contexts/AuthContext';
 
 export function UserMenu() {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleSignOut = async () => {
@@ -69,15 +71,24 @@ export function UserMenu() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="cursor-pointer">
+        <DropdownMenuItem 
+          className="cursor-pointer"
+          onClick={() => navigate('/profile')}
+        >
           <User className="mr-2 h-4 w-4" />
           <span>Perfil</span>
         </DropdownMenuItem>
-        <DropdownMenuItem className="cursor-pointer">
+        <DropdownMenuItem 
+          className="cursor-pointer"
+          onClick={() => navigate('/settings')}
+        >
           <Settings className="mr-2 h-4 w-4" />
           <span>Configurações</span>
         </DropdownMenuItem>
-        <DropdownMenuItem className="cursor-pointer">
+        <DropdownMenuItem 
+          className="cursor-pointer"
+          onClick={() => navigate('/my-qr-codes')}
+        >
           <QrCode className="mr-2 h-4 w-4" />
           <span>Meus QR Codes</span>
         </DropdownMenuItem>

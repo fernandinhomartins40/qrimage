@@ -7,6 +7,9 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/Auth/ProtectedRoute";
 import Index from "./pages/Index";
 import ImageView from "./pages/ImageView";
+import Profile from "./pages/Profile";
+import Settings from "./pages/Settings";
+import MyQRCodes from "./pages/MyQRCodes";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +27,30 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Index />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/profile" 
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/settings" 
+              element={
+                <ProtectedRoute>
+                  <Settings />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/my-qr-codes" 
+              element={
+                <ProtectedRoute>
+                  <MyQRCodes />
                 </ProtectedRoute>
               } 
             />
