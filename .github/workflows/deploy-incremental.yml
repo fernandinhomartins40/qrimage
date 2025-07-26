@@ -352,12 +352,46 @@ jobs:
       run: |
         echo "🔍 Verificação final..."
         sshpass -p '${{ secrets.VPS_PASSWORD }}' ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "
-          # Verificar PM2
+          # Debug: Verificar todos os containers
+          echo '🔍 Todos os containers:'
+          docker ps -a
+          
+          echo ''
+          echo '🔍 Imagens disponíveis:'
+          docker images
+          
+          echo ''
+          echo '🔍 Logs do último container (se existir):'
+          docker logs ${{ env.APP_NAME }} --tail=20 2>/dev/null || echo 'Sem logs disponíveis'
+          
+          # Verificar container
           if docker ps | grep -q ${{ env.APP_NAME }}; then
             echo '✅ Container rodando'
           else
             echo '❌ Container não encontrado'
-            exit 1
+            echo '🔍 Tentando criar container agora...'
+            cd ${{ env.DEPLOY_DIR }}
+            
+            # Tentar criar container se não existir
+            docker run -d \\\
+              --name ${{ env.APP_NAME }} \\\
+              --restart unless-stopped \\\
+              -p ${{ env.APP_PORT }}:80 \\\
+              -e VITE_SUPABASE_URL=http://82.25.69.57:8176 \\\
+              -e VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlLWluc3RhbmNlLW1hbmFnZXIiLCJpYXQiOjE3NTM0NjgyMDMsImV4cCI6MTc4NTAwNDIwM30.pvtIAW0hu1UU7UWF5DDmpysMHDynOVyVWHKvJoTLcDo \\\
+              -e VITE_SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaXNzIjoic3VwYWJhc2UtaW5zdGFuY2UtbWFuYWdlciIsImlhdCI6MTc1MzQ2ODIwMywiZXhwIjoxNzg1MDA0MjAzfQ.fMpWWzhu8JWQVvoodlnU5_xc1kE7ZlaU8vSjHNEIixg \\\
+              ${{ env.APP_NAME }}:latest 2>&1 || {
+                echo '❌ Falha ao criar container'
+                exit 1
+              }
+              
+            sleep 5
+            if docker ps | grep -q ${{ env.APP_NAME }}; then
+              echo '✅ Container criado com sucesso'
+            else
+              echo '❌ Container ainda não encontrado após criação'
+              exit 1
+            fi
           fi
           
           # Verificar health check rápido
@@ -388,7 +422,7 @@ jobs:
           echo ''
           
           echo '=== Status da Aplicação ==='
-          docker ps --filter "name=${{ env.APP_NAME }}" --format "table {{.Names}}\t{{.Status}}" || echo 'Container não encontrado'
+          docker ps --filter 'name=${{ env.APP_NAME }}' --format 'table {{.Names}}\t{{.Status}}' 2>/dev/null || echo 'Container não encontrado'
           
           echo ''
           echo '=== Dados Preservados ==='
